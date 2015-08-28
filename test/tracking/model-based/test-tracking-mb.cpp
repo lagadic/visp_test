@@ -90,47 +90,47 @@ int main(int argc, char** argv)
 
     for (int i=0; i<argc; i++) {
       if (std::string(argv[i]) == "--video")
-	opt_video = std::string(argv[i+1]);
+        opt_video = std::string(argv[i+1]);
       else if (std::string(argv[i]) == "--model")
-	opt_model = std::string(argv[i+1]);
+        opt_model = std::string(argv[i+1]);
       else if (std::string(argv[i]) == "--turn-off-display")
-	opt_turn_off_display = true;
+        opt_turn_off_display = true;
       else if (std::string(argv[i]) == "--test-pose")
-	opt_test_pose = true;
+        opt_test_pose = true;
       else if (std::string(argv[i]) == "--init-by-click")
-	opt_init_by_click = true;
+        opt_init_by_click = true;
       else if (std::string(argv[i]) == "--nb-run")
-	opt_nb_run = atoi(argv[i+1]);
+        opt_nb_run = atoi(argv[i+1]);
 
       else if (std::string(argv[i]) == "--visibility") {
-	if (atoi(argv[i+1]) == 0)
-	  opt_visibility = Visibility_none;
-	else if (atoi(argv[i+1]) == 1)
-	  opt_visibility = Visibility_ogre;
-	else if (atoi(argv[i+1]) == 2)
-	  opt_visibility = Visibility_scanline;
-	else
-	  opt_visibility = Visibility_ogre_scanline;
+        if (atoi(argv[i+1]) == 0)
+          opt_visibility = Visibility_none;
+        else if (atoi(argv[i+1]) == 1)
+          opt_visibility = Visibility_ogre;
+        else if (atoi(argv[i+1]) == 2)
+          opt_visibility = Visibility_scanline;
+        else
+          opt_visibility = Visibility_ogre_scanline;
       }
 
       else if (std::string(argv[i]) == "--tracker") {
-	if (atoi(argv[i+1]) == 0)
-	  opt_tracker = MBT_Edge;
-	else if (atoi(argv[i+1]) == 1)
-	  opt_tracker = MBT_Keypoint;
-	else
-	  opt_tracker = MBT_Hybrid;
+        if (atoi(argv[i+1]) == 0)
+          opt_tracker = MBT_Edge;
+        else if (atoi(argv[i+1]) == 1)
+          opt_tracker = MBT_Keypoint;
+        else
+          opt_tracker = MBT_Hybrid;
       }
 
       else if (std::string(argv[i]) == "--optim") {
-	if (atoi(argv[i+1]) == 0)
-	  opt_optim = vpMbTracker::GAUSS_NEWTON_OPT;
-	else
-	  opt_optim = vpMbTracker::LEVENBERG_MARQUARDT_OPT;
+        if (atoi(argv[i+1]) == 0)
+          opt_optim = vpMbTracker::GAUSS_NEWTON_OPT;
+        else
+          opt_optim = vpMbTracker::LEVENBERG_MARQUARDT_OPT;
       }
       else if (std::string(argv[i]) == "--help") {
-	std::cout << "\nUsage: " << argv[0] << " [--video <live|video generic name >] [--model <model generic name>] [--turn-off-display] [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>] [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>] [--optim <0 (gauss newton), 1 (levenberg marquart)>] [--test-pose] [--init-by-click] [--nb-run <nb run>] [--help]\n" << std::endl;
-	return 0;
+        std::cout << "\nUsage: " << argv[0] << " [--video <live|video generic name >] [--model <model generic name>] [--turn-off-display] [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>] [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>] [--optim <0 (gauss newton), 1 (levenberg marquart)>] [--test-pose] [--init-by-click] [--nb-run <nb run>] [--help]\n" << std::endl;
+        return 0;
       }
     }
 
@@ -184,13 +184,13 @@ int main(int argc, char** argv)
       bool is_initialized = false;
 
       if (opt_video != "live") {
-	g = new vpVideoReader;
-	g->setFileName(opt_videoname);
-	g->open(I);
+        g = new vpVideoReader;
+        g->setFileName(opt_videoname);
+        g->open(I);
       }
       else {
-	glive = new vp1394TwoGrabber(false);
-	glive->open(I);
+        glive = new vp1394TwoGrabber(false);
+        glive->open(I);
       }
 
       std::ofstream os;
@@ -200,77 +200,77 @@ int main(int argc, char** argv)
       logfile += std::string("/") + test_folder;
       vpIoTools::makeDirectory(logfile);
       std::string test_name = getTestName(opt_video, opt_model,
-					  (int)opt_tracker, (int)opt_visibility, (int)opt_optim);
+                                          (int)opt_tracker, (int)opt_visibility, (int)opt_optim);
       logfile += std::string("/") + test_name;
       os.open(logfile.c_str());
 
       if (! opt_turn_off_display && display == NULL) {
 #if defined(VISP_HAVE_X11)
-	display = new vpDisplayX;
+        display = new vpDisplayX;
 #elif defined(VISP_HAVE_GDI)
-	display = new vpDisplayGDI;
+        display = new vpDisplayGDI;
 #elif defined(VISP_HAVE_OPENCV)
-	display = new vpDisplayOpenCV;
+        display = new vpDisplayOpenCV;
 #endif
-	display->init(I,100,100,"Model-based tracker");
+        display->init(I,100,100,"Model-based tracker");
       }
 
       while(1) {
-	if (opt_video != "live") {
-	  if (g->end())
-	    break;
-	  g->acquire(I);
-	}
-	else {
-	  glive->acquire(I);
-	}
-	//            char name[100];
-	//            sprintf(name, "cube-%04d.pgm", iter++);
-	//            vpImageIo::write(I, name);
-	vpDisplay::display(I);
-	if(! is_initialized) {
-	  if (opt_init_by_click)
-	    tracker->initClick(I, opt_objectname + ".init", true);
-	  else
-	    tracker->initFromPose(I, opt_objectname + ".0.pos");
-	  is_initialized = true;
-	}
-	tracker->track(I);
-	tracker->getPose(cMo);
-	tracker->getCameraParameters(cam);
-	tracker->display(I, cMo, cam, vpColor::red, 2, true);
-	vpDisplay::displayFrame(I, cMo, cam, 0.025, vpColor::none, 3);
-	vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
-	vpDisplay::flush(I);
+        if (opt_video != "live") {
+          if (g->end())
+            break;
+          g->acquire(I);
+        }
+        else {
+          glive->acquire(I);
+        }
+        //            char name[100];
+        //            sprintf(name, "cube-%04d.pgm", iter++);
+        //            vpImageIo::write(I, name);
+        vpDisplay::display(I);
+        if(! is_initialized) {
+          if (opt_init_by_click)
+            tracker->initClick(I, opt_objectname + ".init", true);
+          else
+            tracker->initFromPose(I, opt_objectname + ".0.pos");
+          is_initialized = true;
+        }
+        tracker->track(I);
+        tracker->getPose(cMo);
+        tracker->getCameraParameters(cam);
+        tracker->display(I, cMo, cam, vpColor::red, 2, true);
+        vpDisplay::displayFrame(I, cMo, cam, 0.025, vpColor::none, 3);
+        vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
+        vpDisplay::flush(I);
 
-	vpPoseVector pose(tracker->getPose());
-	if (opt_video != "live")
-	  os << "frame " << g->getFrameIndex()-1 << " " << pose.t() << std::endl;
+        vpPoseVector pose(tracker->getPose());
+        if (opt_video != "live")
+          os << "frame " << g->getFrameIndex()-1 << " " << pose.t() << std::endl;
 
-	if (vpDisplay::getClick(I, false))
-	  break;
+        if (vpDisplay::getClick(I, false))
+          break;
       }
 
       if (opt_video != "live")
-	delete g;
+        delete g;
       else
-	delete glive;
+        delete glive;
 
       os.close();
       std::cout << "Results are saved in: \"" << logfile << "\"" << std::endl;
 
       if (opt_test_pose) {
-	std::string benchfile = std::string(DATA_ROOT_DIR) + std::string("/data/bench/") + test_folder;
-	benchfile += std::string("/") + test_name;
-	std::cout << "Compare results with: \"" << benchfile << "\"" << std::endl;
-	bool success = compareFiles(logfile, benchfile);
-	if (success) {
-	  std::cout << "Test succeed" << std::endl;
-	}
-	else {
-	  std::cout << "Test failed during run " << run << std::endl;
-	  return 1;
-	}
+        std::string benchfile = std::string(DATA_ROOT_DIR) + std::string("/data/bench/") + test_folder;
+        benchfile += std::string("/") + test_name;
+        std::cout << "Compare results with: \"" << benchfile << "\"" << std::endl;
+        bool success = compareFiles(logfile, benchfile);
+        if (success) {
+          std::cout << "Test succeed" << std::endl;
+        }
+        else {
+          std::cout << "Test failed during run " << run << std::endl;
+          return 1;
+        }
       }
     }
 
@@ -286,10 +286,10 @@ int main(int argc, char** argv)
     delete tracker;
 
     return 0;
-
   }
   catch(vpException e) {
     std::cout << "Catch an exception: " << e << std::endl;
+    return 1; // to make ctest fail
   }
 #else
   (void)argc;
