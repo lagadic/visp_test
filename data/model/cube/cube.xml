@@ -13,11 +13,10 @@
 			<mu1>0.5</mu1>
 			<mu2>0.5</mu2>
 		</contrast>
-	</ecm>
-	<sample>
+	        <sample>
 		<step>4</step>
-		<nb_sample>250</nb_sample>
-	</sample>
+	        </sample>
+	</ecm>
 	<camera>
 		<width>640</width> 
   		<height>480</height> 
