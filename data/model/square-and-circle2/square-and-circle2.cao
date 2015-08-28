@@ -1,0 +1,29 @@
+V1
+# n point
+9
+0     0      0 # pt 0: external square
+0     0.1    0
+0.1   0.1    0
+0.1   0      0
+0.015 0.015  0 # pt 4: internal square
+0.015 0.085  0
+0.085 0.085  0
+0.085 0.015  0
+0.05  0.05   0 # pt 8: circle center
+# n lines
+4
+4 5
+5 6
+6 7
+7 4
+# n faces from lines
+0 
+# n faces from points
+1
+4 0 3 2 1
+#4 4 7 6 5
+# n cylinders
+0
+# n circles
+1
+0.0225 8 1 0

@@ -1,0 +1,8 @@
+4
+# Points on top circle
+ 0      -0.0375  0      # top left
+ 0       0.0375  0      # top right
+ 0       0      -0.0375 # top front
+# Point on bottom circle
+-0.109   0      -0.0375 # bottom front
+ 
