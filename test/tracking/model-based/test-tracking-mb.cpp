@@ -87,6 +87,7 @@ int main(int argc, char** argv)
     bool opt_test_pose = false;
     bool opt_init_by_click = false;
     int opt_nb_run = 1;
+    int opt_save_images = 0;
 
     for (int i=0; i<argc; i++) {
       if (std::string(argv[i]) == "--video")
@@ -101,6 +102,8 @@ int main(int argc, char** argv)
         opt_init_by_click = true;
       else if (std::string(argv[i]) == "--nb-run")
         opt_nb_run = atoi(argv[i+1]);
+      else if (std::string(argv[i]) == "--save-images")
+        opt_save_images = true;
 
       else if (std::string(argv[i]) == "--visibility") {
         if (atoi(argv[i+1]) == 0)
@@ -129,7 +132,7 @@ int main(int argc, char** argv)
           opt_optim = vpMbTracker::LEVENBERG_MARQUARDT_OPT;
       }
       else if (std::string(argv[i]) == "--help") {
-        std::cout << "\nUsage: " << argv[0] << " [--video <live|video generic name >] [--model <model generic name>] [--turn-off-display] [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>] [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>] [--optim <0 (gauss newton), 1 (levenberg marquart)>] [--test-pose] [--init-by-click] [--nb-run <nb run>] [--help]\n" << std::endl;
+        std::cout << "\nUsage: " << argv[0] << " [--video <live|video generic name >] [--model <model generic name>] [--turn-off-display] [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>] [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>] [--optim <0 (gauss newton), 1 (levenberg marquart)>] [--test-pose] [--init-by-click] [--nb-run <nb run>] [--save-images] [--help]\n" << std::endl;
         return 0;
       }
     }
@@ -224,9 +227,9 @@ int main(int argc, char** argv)
         else {
           glive->acquire(I);
         }
-        //            char name[100];
-        //            sprintf(name, "cube-%04d.pgm", iter++);
-        //            vpImageIo::write(I, name);
+//        char name[100];
+//        sprintf(name, "tabasco-box-%04d.pgm", iter++);
+//        vpImageIo::write(I, name);
         vpDisplay::display(I);
         if(! is_initialized) {
           if (opt_init_by_click)
@@ -240,13 +243,21 @@ int main(int argc, char** argv)
         tracker->getCameraParameters(cam);
         tracker->display(I, cMo, cam, vpColor::red, 2, true);
         vpDisplay::displayFrame(I, cMo, cam, 0.025, vpColor::none, 3);
-        vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
+        if (! opt_save_images)
+          vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
         vpDisplay::flush(I);
 
         vpPoseVector pose(tracker->getPose());
         if (opt_video != "live")
           os << "frame " << g->getFrameIndex()-1 << " " << pose.t() << std::endl;
 
+        if (opt_save_images){
+          char fout[100];
+          sprintf(fout, "%s-%04ld.jpeg", opt_video.c_str(), g->getFrameIndex()-1);
+          vpImage<vpRGBa> O;
+          vpDisplay::getImage(I, O);
+          vpImageIo::write(O, fout);
+        }
         if (vpDisplay::getClick(I, false))
           break;
       }

@@ -27,6 +27,8 @@ list(APPEND video_model_list "ravioli-box" "ravioli-box-rotx" "klt")
 list(APPEND video_model_list "ravioli-box" "ravioli-box-rotx" "hybrid")
 list(APPEND video_model_list "coke" "coke" "klt")
 list(APPEND video_model_list "coke" "coke" "hybrid")
+list(APPEND video_model_list "coke-fs" "coke-fs" "hybrid")
+list(APPEND video_model_list "tabasco-box" "tabasco-box" "hybrid")
 
 list(LENGTH video_model_list list_length)
 MATH(EXPR list_size ${list_length}-1)
