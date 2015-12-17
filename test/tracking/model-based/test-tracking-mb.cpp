@@ -4,13 +4,13 @@
 #include <string>
 #include <fstream>
 
-#include <visp3/core/vpDisplayGDI.h>
-#include <visp3/core/vpDisplayOpenCV.h>
-#include <visp3/core/vpDisplayX.h>
-#include <visp3/core/vpImageIo.h>
+#include <visp3/gui/vpDisplayGDI.h>
+#include <visp3/gui/vpDisplayOpenCV.h>
+#include <visp3/gui/vpDisplayX.h>
+#include <visp3/io/vpImageIo.h>
 #include <visp3/core/vpIoTools.h>
 #include <visp3/mbt/vpMbEdgeKltTracker.h>
-#include <visp3/core/vpVideoReader.h>
+#include <visp3/io/vpVideoReader.h>
 #include <visp3/sensor/vp1394TwoGrabber.h>
 
 template<typename InputIterator1, typename InputIterator2>
@@ -246,6 +246,18 @@ int main(int argc, char** argv)
         if (! opt_save_images)
           vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
         vpDisplay::flush(I);
+
+        {
+          std::cout << "process image: " << g->getFrameIndex()-1 << std::endl;
+          vpMbHiddenFaces<vpMbtPolygon> &faces = tracker->getFaces();
+          std::cout << "Number of faces: " << faces.size() << std::endl;
+          faces.computeClippedPolygons(cMo, cam);
+          std::vector<vpMbtPolygon*> &poly = faces.getPolygon();
+          for (unsigned int i=0; i < poly.size(); i++) {
+            if (poly[i]->polyClipped.size() == 0)
+                std::cout << "Face is not in the image" << std::endl;
+          }
+        }
 
         vpPoseVector pose(tracker->getPose());
         if (opt_video != "live")
