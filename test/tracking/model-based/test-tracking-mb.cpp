@@ -302,10 +302,6 @@ int main(int argc, char** argv)
       delete display;
     }
 
-    vpXmlParser::cleanup();
-#if defined(VISP_HAVE_COIN3D) && (COIN_MAJOR_VERSION == 3)
-    SoDB::finish();
-#endif
     delete tracker;
 
     return 0;
