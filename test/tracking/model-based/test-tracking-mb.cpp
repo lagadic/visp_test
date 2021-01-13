@@ -3,40 +3,90 @@
 #include <iterator>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 #include <visp3/gui/vpDisplayGDI.h>
 #include <visp3/gui/vpDisplayOpenCV.h>
 #include <visp3/gui/vpDisplayX.h>
 #include <visp3/io/vpImageIo.h>
 #include <visp3/core/vpIoTools.h>
-#include <visp3/mbt/vpMbEdgeKltTracker.h>
+#include <visp3/mbt/vpMbGenericTracker.h>
 #include <visp3/io/vpVideoReader.h>
 #include <visp3/sensor/vp1394TwoGrabber.h>
 
-template<typename InputIterator1, typename InputIterator2>
-bool
-rangeEqual(InputIterator1 first1, InputIterator1 last1,
-           InputIterator2 first2, InputIterator2 last2)
+bool is_number(const std::string &str)
 {
-  while(first1 != last1 && first2 != last2) {
-    if(*first1 != *first2) return false;
-    ++first1;
-    ++first2;
-  }
-  return (first1 == last1) && (first2 == last2);
+  std::stringstream stream;
+  double number;
+
+  stream << str;
+  stream >> number;
+
+  return stream.eof();
 }
 
-bool compareFiles(const std::string& filename1, const std::string& filename2)
+bool compareToken(const std::string& token1, const std::string& token2, double &diff, double epsilon)
+{
+  bool token1_is_number = is_number(token1);
+  bool token2_is_number = is_number(token2);
+  if (token1_is_number != token2_is_number)
+    return false;
+
+  if (token1_is_number) {
+    double num1 = std::atof(token1.c_str());
+    double num2 = std::atof(token2.c_str());
+    diff = std::fabs(num1 - num2);
+    if (! vpMath::equal(num1, num2, epsilon)) {
+      return false;
+    }
+  }
+  else if (token1 != token2) {
+    return false;
+  }
+  return true;
+}
+
+bool compareLines(std::string& line1, std::string& line2, double &max_diff, double epsilon)
+{
+  size_t pos1 = 0, pos2 = 0;
+  std::string token1, token2;
+  std::string delimiter = " ";
+  bool equal;
+  double diff;
+  while (((pos1 = line1.find(delimiter)) != std::string::npos) && ((pos2 = line2.find(delimiter)) != std::string::npos)) {
+    token1 = line1.substr(0, pos1);
+    token2 = line2.substr(0, pos2);
+    equal = compareToken(token1, token2, diff, epsilon);
+    if (diff > max_diff) max_diff = diff;
+
+    if (!equal) {
+      return false;
+    }
+    line1.erase(0, pos1 + delimiter.length());
+    line2.erase(0, pos2 + delimiter.length());
+  }
+  token1 = line1;
+  token2 = line2;
+  equal = compareToken(token1, token2, diff, epsilon);
+  if (diff > max_diff) max_diff = diff;
+  if (!equal) {
+    return false;
+  }
+  return true;
+}
+
+bool compareFiles(const std::string& filename1, const std::string& filename2, double &max_diff, double epsilon)
 {
   std::ifstream file1(filename1.c_str());
   std::ifstream file2(filename2.c_str());
-  
-  std::istreambuf_iterator<char> begin1(file1);
-  std::istreambuf_iterator<char> begin2(file2);
-  
-  std::istreambuf_iterator<char> end;
-  
-  return rangeEqual(begin1, end, begin2, end);
+  std::string line1, line2;
+  while (std::getline(file1, line1) && std::getline(file2, line2)) {
+
+    bool equal = compareLines(line1, line2, max_diff, epsilon);
+    if (!equal)
+      return false;
+  }
+  return true;
 }
 
 std::string getTestFolder(char **argv)
@@ -86,6 +136,7 @@ int main(int argc, char** argv)
     vpMbTracker::vpMbtOptimizationMethod  opt_optim = vpMbTracker::GAUSS_NEWTON_OPT;
     bool opt_test_pose = false;
     bool opt_init_by_click = false;
+    bool opt_step_by_step = false;
     int opt_nb_run = 1;
     int opt_save_images = 0;
 
@@ -100,6 +151,8 @@ int main(int argc, char** argv)
         opt_test_pose = true;
       else if (std::string(argv[i]) == "--init-by-click")
         opt_init_by_click = true;
+      else if (std::string(argv[i]) == "--step-by-step")
+        opt_step_by_step = true;
       else if (std::string(argv[i]) == "--nb-run")
         opt_nb_run = atoi(argv[i+1]);
       else if (std::string(argv[i]) == "--save-images")
@@ -131,8 +184,20 @@ int main(int argc, char** argv)
         else
           opt_optim = vpMbTracker::LEVENBERG_MARQUARDT_OPT;
       }
-      else if (std::string(argv[i]) == "--help") {
-        std::cout << "\nUsage: " << argv[0] << " [--video <live|video generic name >] [--model <model generic name>] [--turn-off-display] [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>] [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>] [--optim <0 (gauss newton), 1 (levenberg marquart)>] [--test-pose] [--init-by-click] [--nb-run <nb run>] [--save-images] [--help]\n" << std::endl;
+      else if (std::string(argv[i]) == "--help" || std::string(argv[i]) == "-h") {
+        std::cout << "\nUsage: " << argv[0]
+                  << " [--video <live|video generic name >]"
+                  << " [--model <model generic name>]"
+                  << " [--turn-off-display]"
+                  << " [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>]"
+                  << " [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>]"
+                  << " [--optim <0 (gauss newton), 1 (levenberg marquart)>]"
+                  << " [--test-pose]"
+                  << " [--init-by-click]"
+                  << " [--step-by-step]"
+                  << " [--nb-run <nb run>]"
+                  << " [--save-images]"
+                  << " [--help] [-h]\n" << std::endl;
         return 0;
       }
     }
@@ -157,27 +222,29 @@ int main(int argc, char** argv)
     vpCameraParameters cam;
     vpHomogeneousMatrix cMo;
 
-    vpMbTracker *tracker = NULL;
+    vpMbGenericTracker tracker;
     switch(opt_tracker) {
-    case MBT_Edge:     tracker = new vpMbEdgeTracker;   break;
-    case MBT_Keypoint: tracker = new vpMbKltTracker;    break;
-    case MBT_Hybrid:   tracker = new vpMbEdgeKltTracker; break;
+    case MBT_Edge:     tracker.setTrackerType(vpMbGenericTracker::EDGE_TRACKER); break;
+    case MBT_Keypoint: tracker.setTrackerType(vpMbGenericTracker::KLT_TRACKER); break;
+    case MBT_Hybrid:   tracker.setTrackerType(vpMbGenericTracker::EDGE_TRACKER | vpMbGenericTracker::KLT_TRACKER); break;
     }
     
     if(vpIoTools::checkFilename(opt_objectname + ".xml")) {
-      tracker->loadConfigFile(opt_objectname + ".xml");
+      tracker.loadConfigFile(opt_objectname + ".xml");
     }
 
-    tracker->setOgreVisibilityTest(false);
-    tracker->setScanLineVisibilityTest(false);
+    tracker.setOgreVisibilityTest(false);
+    tracker.setScanLineVisibilityTest(false);
     if (opt_visibility == Visibility_ogre || opt_visibility == Visibility_ogre_scanline)
-      tracker->setOgreVisibilityTest(true);
+      tracker.setOgreVisibilityTest(true);
     if (opt_visibility == Visibility_scanline || opt_visibility == Visibility_ogre_scanline)
-      tracker->setScanLineVisibilityTest(true);
+      tracker.setScanLineVisibilityTest(true);
     
-    tracker->loadModel(opt_objectname + ".cao");
-    tracker->setDisplayFeatures(true);
-    tracker->setOptimizationMethod(opt_optim);
+    tracker.loadModel(opt_objectname + ".cao");
+    tracker.setDisplayFeatures(true);
+    tracker.setOptimizationMethod(opt_optim);
+    tracker.setProjectionErrorComputation(true);
+    tracker.setGoodMovingEdgesRatioThreshold(0.2);
 
     vpDisplay *display = NULL;
     vpVideoReader *g = NULL;
@@ -218,7 +285,9 @@ int main(int argc, char** argv)
         display->init(I,100,100,"Model-based tracker");
       }
 
-      while(1) {
+      bool quit = false;
+
+      while( ! quit) {
         if (opt_video != "live") {
           if (g->end())
             break;
@@ -227,29 +296,36 @@ int main(int argc, char** argv)
         else {
           glive->acquire(I);
         }
-//        char name[100];
-//        sprintf(name, "tabasco-box-%04d.pgm", iter++);
-//        vpImageIo::write(I, name);
         vpDisplay::display(I);
         if(! is_initialized) {
           if (opt_init_by_click)
-            tracker->initClick(I, opt_objectname + ".init", true);
+            tracker.initClick(I, opt_objectname + ".init", true);
           else
-            tracker->initFromPose(I, opt_objectname + ".0.pos");
+            tracker.initFromPose(I, opt_objectname + ".0.pos");
           is_initialized = true;
         }
-        tracker->track(I);
-        tracker->getPose(cMo);
-        tracker->getCameraParameters(cam);
-        tracker->display(I, cMo, cam, vpColor::red, 2, true);
+        tracker.track(I);
+        std::cout << "Projection error: " << tracker.getProjectionError() << std::endl;
+
+        tracker.getPose(cMo);
+        tracker.getCameraParameters(cam);
+        tracker.display(I, cMo, cam, vpColor::red, 2, true);
         vpDisplay::displayFrame(I, cMo, cam, 0.025, vpColor::none, 3);
+
         if (! opt_save_images)
           vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
+
+        if (opt_video != "live") {
+          std::stringstream ss;
+          ss << "Process image: " << g->getFrameIndex();
+          vpDisplay::displayText(I, 30, 10, ss.str(), vpColor::red);
+        }
+
         vpDisplay::flush(I);
 
         {
           std::cout << "process image: " << g->getFrameIndex()-1 << std::endl;
-          vpMbHiddenFaces<vpMbtPolygon> &faces = tracker->getFaces();
+          vpMbHiddenFaces<vpMbtPolygon> &faces = tracker.getFaces();
           std::cout << "Number of faces: " << faces.size() << std::endl;
           faces.computeClippedPolygons(cMo, cam);
           std::vector<vpMbtPolygon*> &poly = faces.getPolygon();
@@ -259,9 +335,10 @@ int main(int argc, char** argv)
           }
         }
 
-        vpPoseVector pose(tracker->getPose());
-        if (opt_video != "live")
+        vpPoseVector pose(tracker.getPose());
+        if (opt_video != "live") {
           os << "frame " << g->getFrameIndex()-1 << " " << pose.t() << std::endl;
+        }
 
         if (opt_save_images){
           char fout[100];
@@ -270,8 +347,23 @@ int main(int argc, char** argv)
           vpDisplay::getImage(I, O);
           vpImageIo::write(O, fout);
         }
-        if (vpDisplay::getClick(I, false))
-          break;
+
+        // Button 1: start step by step if not enabled from command line option
+        // Button 2: enables step by step mode
+        // Button 3: ends step by step mode if enabled
+        //           quit otherwise
+        vpMouseButton::vpMouseButtonType button;
+        if (vpDisplay::getClick(I, button, opt_step_by_step ? true : false)) {
+          if (button == vpMouseButton::button1 && opt_step_by_step == false) {
+            opt_step_by_step = true;
+          } else if (button == vpMouseButton::button3 && opt_step_by_step == true) {
+            opt_step_by_step = false;
+          } else if (button == vpMouseButton::button3 && opt_step_by_step == false) {
+            quit = true;
+          } else if (button == vpMouseButton::button2) {
+            opt_step_by_step = true;
+          }
+        }
       }
 
       if (opt_video != "live")
@@ -286,7 +378,10 @@ int main(int argc, char** argv)
         std::string benchfile = std::string(DATA_ROOT_DIR) + std::string("/data/bench/") + test_folder;
         benchfile += std::string("/") + test_name;
         std::cout << "Compare results with: \"" << benchfile << "\"" << std::endl;
-        bool success = compareFiles(logfile, benchfile);
+        double max_diff = 0.;
+        double epsilon = 1e-3;
+        bool success = compareFiles(logfile, benchfile, max_diff, epsilon);
+        std::cout << "Max difference between values: " << max_diff << std::endl;
         if (success) {
           std::cout << "Test succeed" << std::endl;
         }
@@ -301,8 +396,6 @@ int main(int argc, char** argv)
       //vpDisplay::getClick(I);
       delete display;
     }
-
-    delete tracker;
 
     return 0;
   }
