@@ -14,7 +14,7 @@
 			<mu2>0.5</mu2>
 		</contrast>
 	        <sample>
-		        <step>10</step>
+		        <step>5</step>
 	        </sample>
 	</ecm>
 	<camera> 
