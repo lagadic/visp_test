@@ -1,0 +1,5 @@
+4
+-0.03275 0 -0.015 # cylinder top left 
+ 0.03275 0 -0.015 # cylinder top right
+ 0 -0.03275 -0.015 # cylinder top front
+ 0 -0.03275 -0.107 # cylinder bottom front
