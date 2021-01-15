@@ -1,6 +1,6 @@
 project(test-tracking-model-based)
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 find_package(VISP REQUIRED visp_core visp_mbt visp_sensor)
 
