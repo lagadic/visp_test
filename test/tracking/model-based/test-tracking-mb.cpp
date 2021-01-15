@@ -90,7 +90,7 @@ bool compareFiles(const std::string& filename1, const std::string& filename2, do
 }
 
 std::string getTestFolder(char **argv)
-{    
+{
   return std::string(vpIoTools::getNameWE(argv[0]));
 }
 
@@ -209,7 +209,7 @@ int main(int argc, char** argv)
       opt_nb_run = 1;
       opt_init_by_click = true;
     }
-    
+
     std::cout << "Video name: " << opt_videoname << std::endl;
     std::cout << "Tracker requested config files: " << opt_objectname
               << ".[init, xml, cao or wrl]" << std::endl;
@@ -228,7 +228,7 @@ int main(int argc, char** argv)
     case MBT_Keypoint: tracker.setTrackerType(vpMbGenericTracker::KLT_TRACKER); break;
     case MBT_Hybrid:   tracker.setTrackerType(vpMbGenericTracker::EDGE_TRACKER | vpMbGenericTracker::KLT_TRACKER); break;
     }
-    
+
     if(vpIoTools::checkFilename(opt_objectname + ".xml")) {
       tracker.loadConfigFile(opt_objectname + ".xml");
     }
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
       tracker.setOgreVisibilityTest(true);
     if (opt_visibility == Visibility_scanline || opt_visibility == Visibility_ogre_scanline)
       tracker.setScanLineVisibilityTest(true);
-    
+
     tracker.loadModel(opt_objectname + ".cao");
     tracker.setDisplayFeatures(true);
     tracker.setOptimizationMethod(opt_optim);
@@ -248,7 +248,9 @@ int main(int argc, char** argv)
 
     vpDisplay *display = NULL;
     vpVideoReader *g = NULL;
+#ifdef VISP_HAVE_DC1394_2
     vp1394TwoGrabber *glive = NULL;
+#endif
     for(unsigned int run=0; run < opt_nb_run; run++) {
       int iter =0;
       bool is_initialized = false;
@@ -259,8 +261,10 @@ int main(int argc, char** argv)
         g->open(I);
       }
       else {
+#ifdef VISP_HAVE_DC1394_2
         glive = new vp1394TwoGrabber(false);
         glive->open(I);
+#endif
       }
 
       std::ofstream os;
@@ -294,7 +298,9 @@ int main(int argc, char** argv)
           g->acquire(I);
         }
         else {
+#ifdef VISP_HAVE_DC1394_2
           glive->acquire(I);
+#endif
         }
         vpDisplay::display(I);
         if(! is_initialized) {
@@ -366,10 +372,14 @@ int main(int argc, char** argv)
         }
       }
 
-      if (opt_video != "live")
+      if (opt_video != "live") {
         delete g;
-      else
+      }
+      else {
+#ifdef VISP_HAVE_DC1394_2
         delete glive;
+#endif
+      }
 
       os.close();
       std::cout << "Results are saved in: \"" << logfile << "\"" << std::endl;
