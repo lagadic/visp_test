@@ -1,0 +1,42 @@
+V1
+# points
+15
+# -- top circle
+0 0 0 # top circle center
+1 0 0 # top circle right -> x
+0 1 0 # top circle rear -> y
+# -- cylinder
+0 0 -0.015 # cylinder top revolution axis
+0 0 -0.107 # cylinder bottom revolution axis
+-0.03275 0 -0.015 # cylinder top left 
+ 0.03275 0 -0.015 # cylinder top right
+ 0 -0.03275 -0.015 # cylinder top front
+ 0 -0.03275 -0.107 # cylinder bottom front
+# -- cylinder bottom circle
+0 0 -0.107 # bottom circle center
+1 0 -0.107 # bottom circle right -> x
+0 1 -0.107 # bottom circle rear -> y
+# -- cylinder top circle
+0 0 -0.015 # top circle center
+1 0 -0.015 # top circle right -> x
+0 1 -0.015 # top circle rear -> y
+# lines
+0
+# faces from lines
+0
+# faces from points
+0
+# cylinders
+1
+3 4 0.03275 
+# circles
+3
+# - Top circle
+0.0267 0 1 2    # top circle with normal going upward
+# - Cylinder bottom circle
+0.03275 9 11 10 # bottom circle with normal going downward (not visible)
+#0.03275 9 10 11 # bottom circle with normal going upward (visible)
+# - Cylinder top circle
+#0.03275 12 13 14 # top circle with normal going upward (visible)
+0.03275 12 14 13 # top circle with normal going upward (not visible)
+
