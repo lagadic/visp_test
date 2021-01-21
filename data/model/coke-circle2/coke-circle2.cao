@@ -27,6 +27,9 @@ V1
 3 4 0.03275 
 # circles
 2
+# - Top circle
 0.0267 0 1 2    # top circle with normal going upward
-0.03275 9 11 10 # bottom circle with normal going downward
-#0.03275 9 11 10 # bottom circle with normal going upward
+# - Cylinder bottom circle
+0.03275 9 11 10 # bottom circle with normal going downward (not visible)
+#0.03275 9 10 11 # bottom circle with normal going upward (visible)
+
