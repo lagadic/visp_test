@@ -30,6 +30,7 @@ list(APPEND video_model_list "coke" "coke" "klt")
 list(APPEND video_model_list "coke" "coke" "hybrid")
 list(APPEND video_model_list "coke-circle" "coke-circle1" "hybrid")
 list(APPEND video_model_list "coke-circle" "coke-circle2" "hybrid")
+list(APPEND video_model_list "coke-circle" "coke-circle3" "hybrid")
 list(APPEND video_model_list "tabasco-box" "tabasco-box" "hybrid")
 
 list(LENGTH video_model_list list_length)
