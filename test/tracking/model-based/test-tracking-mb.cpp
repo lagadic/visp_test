@@ -25,7 +25,7 @@ bool is_number(const std::string &str)
   return stream.eof();
 }
 
-bool compareToken(const std::string& token1, const std::string& token2, double &diff, double epsilon)
+bool compareToken(const std::string &token1, const std::string &token2, double &diff, double epsilon)
 {
   bool token1_is_number = is_number(token1);
   bool token2_is_number = is_number(token2);
@@ -36,7 +36,7 @@ bool compareToken(const std::string& token1, const std::string& token2, double &
     double num1 = std::atof(token1.c_str());
     double num2 = std::atof(token2.c_str());
     diff = std::fabs(num1 - num2);
-    if (! vpMath::equal(num1, num2, epsilon)) {
+    if (!vpMath::equal(num1, num2, epsilon)) {
       return false;
     }
   }
@@ -46,7 +46,7 @@ bool compareToken(const std::string& token1, const std::string& token2, double &
   return true;
 }
 
-bool compareLines(std::string& line1, std::string& line2, double &max_diff, double epsilon)
+bool compareLines(std::string &line1, std::string &line2, double &max_diff, double epsilon)
 {
   size_t pos1 = 0, pos2 = 0;
   std::string token1, token2;
@@ -75,7 +75,7 @@ bool compareLines(std::string& line1, std::string& line2, double &max_diff, doub
   return true;
 }
 
-bool compareFiles(const std::string& filename1, const std::string& filename2, double &max_diff, double epsilon)
+bool compareFiles(const std::string &filename1, const std::string &filename2, double &max_diff, double epsilon)
 {
   std::ifstream file1(filename1.c_str());
   std::ifstream file2(filename2.c_str());
@@ -107,20 +107,22 @@ std::string getTestName(const std::string &opt_video, const std::string &opt_mod
   return ss.str();
 }
 
-typedef enum {
+typedef enum
+{
   MBT_Edge,
   MBT_Keypoint,
   MBT_Hybrid
 } TrackerType;
 
-typedef enum {
+typedef enum
+{
   Visibility_none,
   Visibility_ogre,
   Visibility_scanline,
   Visibility_ogre_scanline
 } VisibilityType;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 #if defined(VISP_HAVE_OPENCV) && (VISP_HAVE_OPENCV_VERSION >= 0x020100) && defined(VISP_HAVE_XML2)
 
@@ -140,11 +142,11 @@ int main(int argc, char** argv)
     int opt_nb_run = 1;
     int opt_save_images = 0;
 
-    for (int i=0; i<argc; i++) {
+    for (int i = 0; i < argc; i++) {
       if (std::string(argv[i]) == "--video")
-        opt_video = std::string(argv[i+1]);
+        opt_video = std::string(argv[i + 1]);
       else if (std::string(argv[i]) == "--model")
-        opt_model = std::string(argv[i+1]);
+        opt_model = std::string(argv[i + 1]);
       else if (std::string(argv[i]) == "--turn-off-display")
         opt_turn_off_display = true;
       else if (std::string(argv[i]) == "--test-pose")
@@ -154,50 +156,50 @@ int main(int argc, char** argv)
       else if (std::string(argv[i]) == "--step-by-step")
         opt_step_by_step = true;
       else if (std::string(argv[i]) == "--nb-run")
-        opt_nb_run = atoi(argv[i+1]);
+        opt_nb_run = atoi(argv[i + 1]);
       else if (std::string(argv[i]) == "--save-images")
         opt_save_images = true;
 
       else if (std::string(argv[i]) == "--visibility") {
-        if (atoi(argv[i+1]) == 0)
+        if (atoi(argv[i + 1]) == 0)
           opt_visibility = Visibility_none;
-        else if (atoi(argv[i+1]) == 1)
+        else if (atoi(argv[i + 1]) == 1)
           opt_visibility = Visibility_ogre;
-        else if (atoi(argv[i+1]) == 2)
+        else if (atoi(argv[i + 1]) == 2)
           opt_visibility = Visibility_scanline;
         else
           opt_visibility = Visibility_ogre_scanline;
       }
 
       else if (std::string(argv[i]) == "--tracker") {
-        if (atoi(argv[i+1]) == 0)
+        if (atoi(argv[i + 1]) == 0)
           opt_tracker = MBT_Edge;
-        else if (atoi(argv[i+1]) == 1)
+        else if (atoi(argv[i + 1]) == 1)
           opt_tracker = MBT_Keypoint;
         else
           opt_tracker = MBT_Hybrid;
       }
 
       else if (std::string(argv[i]) == "--optim") {
-        if (atoi(argv[i+1]) == 0)
+        if (atoi(argv[i + 1]) == 0)
           opt_optim = vpMbTracker::GAUSS_NEWTON_OPT;
         else
           opt_optim = vpMbTracker::LEVENBERG_MARQUARDT_OPT;
       }
       else if (std::string(argv[i]) == "--help" || std::string(argv[i]) == "-h") {
         std::cout << "\nUsage: " << argv[0]
-                  << " [--video <live|video generic name >]"
-                  << " [--model <model generic name>]"
-                  << " [--turn-off-display]"
-                  << " [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>]"
-                  << " [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>]"
-                  << " [--optim <0 (gauss newton), 1 (levenberg marquart)>]"
-                  << " [--test-pose]"
-                  << " [--init-by-click]"
-                  << " [--step-by-step]"
-                  << " [--nb-run <nb run>]"
-                  << " [--save-images]"
-                  << " [--help] [-h]\n" << std::endl;
+          << " [--video <live|video generic name >]"
+          << " [--model <model generic name>]"
+          << " [--turn-off-display]"
+          << " [--tracker <0 (edge), 1 (keypoint), 2 (hybrid)>]"
+          << " [--visibility <0 (edgenone), 1 (ogre), 2 (scanline), 3 (ogre+scanline)>]"
+          << " [--optim <0 (gauss newton), 1 (levenberg marquart)>]"
+          << " [--test-pose]"
+          << " [--init-by-click]"
+          << " [--step-by-step]"
+          << " [--nb-run <nb run>]"
+          << " [--save-images]"
+          << " [--help] [-h]\n" << std::endl;
         return 0;
       }
     }
@@ -212,7 +214,7 @@ int main(int argc, char** argv)
 
     std::cout << "Video name: " << opt_videoname << std::endl;
     std::cout << "Tracker requested config files: " << opt_objectname
-              << ".[init, xml, cao or wrl]" << std::endl;
+      << ".[init, xml, cao or wrl]" << std::endl;
     std::cout << "Tracker optional config files: " << opt_objectname << ".[ppm]" << std::endl;
     std::cout << "Visibility: " << opt_visibility << std::endl;
     std::cout << "Tracker: " << opt_tracker << std::endl;
@@ -223,13 +225,13 @@ int main(int argc, char** argv)
     vpHomogeneousMatrix cMo;
 
     vpMbGenericTracker tracker;
-    switch(opt_tracker) {
+    switch (opt_tracker) {
     case MBT_Edge:     tracker.setTrackerType(vpMbGenericTracker::EDGE_TRACKER); break;
     case MBT_Keypoint: tracker.setTrackerType(vpMbGenericTracker::KLT_TRACKER); break;
     case MBT_Hybrid:   tracker.setTrackerType(vpMbGenericTracker::EDGE_TRACKER | vpMbGenericTracker::KLT_TRACKER); break;
     }
 
-    if(vpIoTools::checkFilename(opt_objectname + ".xml")) {
+    if (vpIoTools::checkFilename(opt_objectname + ".xml")) {
       tracker.loadConfigFile(opt_objectname + ".xml");
     }
 
@@ -251,8 +253,8 @@ int main(int argc, char** argv)
 #ifdef VISP_HAVE_DC1394_2
     vp1394TwoGrabber *glive = NULL;
 #endif
-    for(unsigned int run=0; run < opt_nb_run; run++) {
-      int iter =0;
+    for (unsigned int run = 0; run < opt_nb_run; run++) {
+      int iter = 0;
       bool is_initialized = false;
 
       if (opt_video != "live") {
@@ -278,7 +280,7 @@ int main(int argc, char** argv)
       logfile += std::string("/") + test_name;
       os.open(logfile.c_str());
 
-      if (! opt_turn_off_display && display == NULL) {
+      if (!opt_turn_off_display && display == NULL) {
 #if defined(VISP_HAVE_X11)
         display = new vpDisplayX;
 #elif defined(VISP_HAVE_GDI)
@@ -286,16 +288,17 @@ int main(int argc, char** argv)
 #elif defined(VISP_HAVE_OPENCV)
         display = new vpDisplayOpenCV;
 #endif
-        display->init(I,100,100,"Model-based tracker");
+        display->init(I, 100, 100, "Model-based tracker");
       }
 
       bool quit = false;
 
-      while( ! quit) {
+      while (!quit) {
         if (opt_video != "live") {
           if (g->end())
             break;
           g->acquire(I);
+          std::cout << "-- Process image " << g->getFrameIndex() << std::endl;
         }
         else {
 #ifdef VISP_HAVE_DC1394_2
@@ -303,7 +306,7 @@ int main(int argc, char** argv)
 #endif
         }
         vpDisplay::display(I);
-        if(! is_initialized) {
+        if (!is_initialized) {
           if (opt_init_by_click)
             tracker.initClick(I, opt_objectname + ".init", true);
           else
@@ -318,7 +321,7 @@ int main(int argc, char** argv)
         tracker.display(I, cMo, cam, vpColor::red, 2, true);
         vpDisplay::displayFrame(I, cMo, cam, 0.025, vpColor::none, 3);
 
-        if (! opt_save_images)
+        if (!opt_save_images)
           vpDisplay::displayText(I, 10, 10, "A click to exit...", vpColor::red);
 
         if (opt_video != "live") {
@@ -330,25 +333,25 @@ int main(int argc, char** argv)
         vpDisplay::flush(I);
 
         {
-          std::cout << "process image: " << g->getFrameIndex()-1 << std::endl;
+          std::cout << "process image: " << g->getFrameIndex() - 1 << std::endl;
           vpMbHiddenFaces<vpMbtPolygon> &faces = tracker.getFaces();
           std::cout << "Number of faces: " << faces.size() << std::endl;
           faces.computeClippedPolygons(cMo, cam);
-          std::vector<vpMbtPolygon*> &poly = faces.getPolygon();
-          for (unsigned int i=0; i < poly.size(); i++) {
+          std::vector<vpMbtPolygon *> &poly = faces.getPolygon();
+          for (unsigned int i = 0; i < poly.size(); i++) {
             if (poly[i]->polyClipped.size() == 0)
-                std::cout << "Face is not in the image" << std::endl;
+              std::cout << "Face is not in the image" << std::endl;
           }
         }
 
         vpPoseVector pose(tracker.getPose());
         if (opt_video != "live") {
-          os << "frame " << g->getFrameIndex()-1 << " " << pose.t() << std::endl;
+          os << "frame " << g->getFrameIndex() - 1 << " " << pose.t() << std::endl;
         }
 
-        if (opt_save_images){
-          char fout[100];
-          sprintf(fout, "%s-%04ld.jpeg", opt_video.c_str(), g->getFrameIndex()-1);
+        if (opt_save_images) {
+          char fout[FILENAME_MAX];
+          snprintf(fout, FILENAME_MAX, "%s-%04ld.jpeg", opt_video.c_str(), g->getFrameIndex() - 1);
           vpImage<vpRGBa> O;
           vpDisplay::getImage(I, O);
           vpImageIo::write(O, fout);
@@ -362,11 +365,14 @@ int main(int argc, char** argv)
         if (vpDisplay::getClick(I, button, opt_step_by_step ? true : false)) {
           if (button == vpMouseButton::button1 && opt_step_by_step == false) {
             opt_step_by_step = true;
-          } else if (button == vpMouseButton::button3 && opt_step_by_step == true) {
+          }
+          else if (button == vpMouseButton::button3 && opt_step_by_step == true) {
             opt_step_by_step = false;
-          } else if (button == vpMouseButton::button3 && opt_step_by_step == false) {
+          }
+          else if (button == vpMouseButton::button3 && opt_step_by_step == false) {
             quit = true;
-          } else if (button == vpMouseButton::button2) {
+          }
+          else if (button == vpMouseButton::button2) {
             opt_step_by_step = true;
           }
         }
@@ -402,14 +408,14 @@ int main(int argc, char** argv)
       }
     }
 
-    if (! opt_turn_off_display) {
+    if (!opt_turn_off_display) {
       //vpDisplay::getClick(I);
       delete display;
     }
 
     return 0;
   }
-  catch(vpException e) {
+  catch (vpException e) {
     std::cout << "Catch an exception: " << e << std::endl;
     return 1; // to make ctest fail
   }
