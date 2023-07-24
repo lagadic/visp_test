@@ -1,6 +1,6 @@
-project(visp-test-extra)
-
 cmake_minimum_required(VERSION 3.0)
+
+project(visp-test-extra)
 
 # By default set release configuration
 if(NOT CMAKE_BUILD_TYPE)
